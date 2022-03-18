@@ -10,48 +10,103 @@
 4) Список фильмов на странице сформировать на основании данных из этого JS файла.
 Отсортировать их по алфавиту 
 
-5) Добавить нумерацию выведенных фильмов */
+5) Добавить нумерацию выведенных фильмов 
+
+1) Реализовать функционал, что после заполнения формы и нажатия кнопки "Подтвердить" - 
+новый фильм добавляется в список. Страница не должна перезагружаться.
+Новый фильм должен добавляться в movieDB.movies.
+Для получения доступа к значению input - обращаемся к нему как input.value;
+P.S. Здесь есть несколько вариантов решения задачи, принимается любой, но рабочий.
+
+2) Если название фильма больше, чем 21 символ - обрезать его и добавить три точки
+
+3) При клике на мусорную корзину - элемент будет удаляться из списка (сложно)
+
+4) Если в форме стоит галочка "Сделать любимым" - в консоль вывести сообщение: 
+"Добавляем любимый фильм"
+
+5) Фильмы должны быть отсортированы по алфавиту */
+
+
+
+
+
 
 'use strict';
 
-const movieDB = {
-    movies: [
-        "Логан",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        "Одержимость",
-        "Скотт Пилигрим против..."
-    ]
-};
+document.addEventListener('DOMContentLoaded', () => {
+    const movieDB = {
+        movies: [
+            "Логан",
+            "Лига справедливости",
+            "Ла-ла лэнд",
+            "Одержимость",
+            "Скотт Пилигрим против...",            
+        ]
+    };    
+    const adv = document.querySelectorAll('.promo__adv img'),
+         mainBg = document.querySelector('.promo__bg'),
+         genre = mainBg.querySelector('.promo__genre'),
+         movieList = document.querySelector('.promo__interactive-list'),
+         addForm = document.querySelector('form.add'),
+         addInput = addForm.querySelector('.adding__input'),
+         checkbox = addForm.querySelector('[type="checkbox"]');      
+    function deleteAdv(arr) {
+        arr.forEach((item) => {
+            item.remove();
+        });               
+    }
+    function makeChanges() {
+        genre.textContent = 'драма'; 
+        mainBg.style.backgroundImage = 'url("img/bg.jpg")';
+    }    
+    function sortArr(arr) {        
+        arr.sort();
+    }
+    function createMovieList (films, parent) {
+        parent.innerHTML = ''; 
+        sortArr(films);    
+        
+        films.forEach((film, i) => {
+            parent.innerHTML += `
+                <li class="promo__interactive-item">${i + 1} ${film} 
+                    <div class="delete"></div>   
+                </li>  
+        `;
+        });
 
-const adv = document.querySelectorAll('.promo__adv img');
-const mainBg = document.querySelector('.promo__bg');
-const genre = mainBg.querySelector('.promo__genre');
-const movieList = document.querySelector('.promo__interactive-list');
+        document.querySelectorAll('.delete').forEach((btn, i) => {
+            btn.addEventListener('click', () => {
+                btn.parentNode.remove();
+                movieDB.movies.splice(i, 1);
+                
+                createMovieList(films, parent);
+            });
+        });
+    }
 
 
+    addForm.addEventListener('submit', e => {
+        e.preventDefault();
+        let newFilm = addInput.value;
+        const favorite = checkbox.checked;
 
-// 1
-adv.forEach((item) => {
-    item.remove();
+        if(newFilm) {
+            if(newFilm.length > 21) {
+                newFilm = `${newFilm.slice(0, 22)}...`;
+            }
+            if(favorite) {
+                console.log("Добавляем любимый фильм");
+            }
+            movieDB.movies.push(newFilm);
+            createMovieList(movieDB.movies, movieList); 
+        }        
+
+        e.target.reset();
+    });    
+
+
+    createMovieList(movieDB.movies, movieList);    
+    deleteAdv(adv);
+    makeChanges();      
 });
-
-// 2
-genre.textContent = 'драма';
-
-// 3
-mainBg.style.backgroundImage = 'url("img/bg.jpg")';
-
-// 4
-movieList.innerHTML = '';
-movieDB.movies.sort();
-
-movieDB.movies.forEach((film, i) => {
-    movieList.innerHTML += `
-        <li class="promo__interactive-item">${i + 1} ${film} 
-            <div class="delete"></div>   
-        </li>  
-    `;
-});
-
-console.log(movieDB.movies);
